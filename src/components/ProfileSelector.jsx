@@ -10,9 +10,10 @@ export default function ProfileSelector({
   onLogoutProfile,
   onUpdateProfile,
   isAdminMode,
-  onChangeAdminMode
+  onChangeAdminMode,
+  showLogin,
+  onShowLoginChange
 }) {
-  const [showLogin, setShowLogin] = useState(!activeProfile);
   const [step, setStep] = useState('rut'); // 'rut', 'login', 'setup_password', 'register'
   const [rutInput, setRutInput] = useState('');
   const [nameInput, setNameInput] = useState('');
@@ -63,7 +64,7 @@ export default function ProfileSelector({
       setConfirmPasswordInput('');
       setMatchedProfile(null);
       setStep('rut');
-      setShowLogin(false);
+      onShowLoginChange(false);
       setShowPassword(false);
     } else {
       setPasswordError('Contraseña incorrecta. Inténtalo de nuevo.');
@@ -95,7 +96,7 @@ export default function ProfileSelector({
     setConfirmPasswordInput('');
     setMatchedProfile(null);
     setStep('rut');
-    setShowLogin(false);
+    onShowLoginChange(false);
     setShowPassword(false);
     alert('Contraseña establecida con éxito. Úsala para tus próximos inicios de sesión.');
   };
@@ -128,7 +129,7 @@ export default function ProfileSelector({
     setPasswordInput('');
     setConfirmPasswordInput('');
     setStep('rut');
-    setShowLogin(false);
+    onShowLoginChange(false);
     setShowPassword(false);
   };
 
@@ -153,7 +154,7 @@ export default function ProfileSelector({
       } else {
         setStep('setup_password');
       }
-      setShowLogin(true);
+      onShowLoginChange(true);
     }
     setShowSwitchDropdown(false);
   };
@@ -221,7 +222,7 @@ export default function ProfileSelector({
             {activeProfile && (
               <button 
                 type="button" 
-                onClick={() => setShowLogin(false)} 
+                onClick={() => onShowLoginChange(false)} 
                 className="btn btn-secondary w-full text-xs py-2"
               >
                 Cancelar y volver
@@ -283,7 +284,7 @@ export default function ProfileSelector({
               {activeProfile && (
                 <button 
                   type="button" 
-                  onClick={() => setShowLogin(false)} 
+                  onClick={() => onShowLoginChange(false)} 
                   className="btn btn-secondary flex-1 text-xs py-2"
                 >
                   Cancelar
@@ -359,7 +360,7 @@ export default function ProfileSelector({
               {activeProfile && (
                 <button 
                   type="button" 
-                  onClick={() => setShowLogin(false)} 
+                  onClick={() => onShowLoginChange(false)} 
                   className="btn btn-secondary flex-1 text-xs py-2"
                 >
                   Cancelar
@@ -459,7 +460,7 @@ export default function ProfileSelector({
               {activeProfile && (
                 <button 
                   type="button" 
-                  onClick={() => setShowLogin(false)} 
+                  onClick={() => onShowLoginChange(false)} 
                   className="btn btn-secondary flex-1 text-xs py-2"
                 >
                   Cancelar
@@ -475,8 +476,8 @@ export default function ProfileSelector({
   return (
     <div className="profile-bar glass flex justify-between items-center mb-6 p-3 rounded-2xl border">
       <div className="profile-active-info flex items-center gap-3 relative">
-        <div className="profile-avatar flex items-center justify-center">
-          <User size={18} className="text-primary" />
+        <div className="profile-avatar flex items-center justify-center" style={{ overflow: 'hidden', padding: 0 }}>
+          <img src="/logo.png" alt="PickerCal Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         </div>
         <div>
           <div 

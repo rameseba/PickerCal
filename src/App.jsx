@@ -40,6 +40,8 @@ export default function App() {
     return localStorage.getItem('picking_active_rut') || '';
   });
 
+  const [showLogin, setShowLogin] = useState(true);
+
   const [showBugReportModal, setShowBugReportModal] = useState(false);
   const [bugDescription, setBugDescription] = useState('');
   const [bugScreenshot, setBugScreenshot] = useState(null);
@@ -108,6 +110,11 @@ export default function App() {
   // --- Sync activeRut to localStorage ---
   useEffect(() => {
     localStorage.setItem('picking_active_rut', activeRut);
+    if (!activeRut) {
+      setShowLogin(true);
+    } else {
+      setShowLogin(false);
+    }
   }, [activeRut]);
 
   useEffect(() => {
@@ -442,10 +449,12 @@ export default function App() {
           onUpdateProfile={handleUpdateProfile}
           isAdminMode={isAdminMode}
           onChangeAdminMode={handleToggleAdminMode}
+          showLogin={showLogin}
+          onShowLoginChange={setShowLogin}
         />
 
-        {/* Solo mostrar la UI si hay un perfil activo o si estamos en modo Admin */}
-        {activeProfile || isAdminMode ? (
+        {/* Solo mostrar la UI si hay un perfil activo y el login está cerrado */}
+        {activeProfile && !showLogin ? (
           <div className="active-tab-container w-full max-w-4xl mx-auto flex flex-col gap-6">
             {activeTab === 'admin' && (
               <div className="w-full flex justify-center">
@@ -548,7 +557,7 @@ export default function App() {
       </footer>
 
       {/* Navegación Inferior Mobile / Centrada Desktop */}
-      {(activeProfile || isAdminMode) && (
+      {activeProfile && !showLogin && (
         <nav className="bottom-nav glass">
           <div className="bottom-nav-content container">
             {isAdminMode && (
@@ -595,7 +604,7 @@ export default function App() {
         </nav>
       )}
       {/* Botones flotantes (Compartir y Bug Report) */}
-      {activeRut && (
+      {activeRut && !showLogin && (
         <div 
           style={{
             position: 'fixed',

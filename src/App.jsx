@@ -49,6 +49,7 @@ export default function App() {
   const [showBugReportModal, setShowBugReportModal] = useState(false);
   const [bugDescription, setBugDescription] = useState('');
   const [bugScreenshot, setBugScreenshot] = useState(null);
+  const [showTooltip, setShowTooltip] = useState(true);
 
   // --- Estado Activo de Interfaz ---
   const [activeTab, setActiveTab] = useState('calculator'); // 'admin', 'calculator', 'history', 'settings'
@@ -83,6 +84,16 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('picking_reports', JSON.stringify(reports));
   }, [reports]);
+
+  useEffect(() => {
+    if (activeRut) {
+      setShowTooltip(true);
+      const timer = setTimeout(() => {
+        setShowTooltip(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [activeRut]);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -615,30 +626,112 @@ export default function App() {
           </div>
         </nav>
       )}
-      {/* Botón flotante para reportar errores */}
+      {/* Botones flotantes (Compartir y Bug Report) */}
       {activeRut && (
-        <button
-          onClick={() => setShowBugReportModal(true)}
-          className="btn flex items-center justify-center shadow-lg"
+        <div 
           style={{
             position: 'fixed',
-            bottom: '76px', // encima de la barra de navegación
+            bottom: '76px',
             right: '16px',
             zIndex: 100,
-            borderRadius: '50%',
-            width: '42px',
-            height: '42px',
-            padding: 0,
-            background: 'var(--primary)',
-            color: 'white',
-            border: 'none',
-            boxShadow: '0 4px 12px var(--primary-glow)',
-            fontSize: '18px'
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px',
+            alignItems: 'flex-end'
           }}
-          title="Reportar Error"
         >
-          🪲
-        </button>
+          {/* Botón WhatsApp */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span 
+              className="glass"
+              style={{
+                fontSize: '10px',
+                fontWeight: 600,
+                color: 'var(--text-main)',
+                background: 'var(--card-bg)',
+                padding: '4px 8px',
+                borderRadius: '6px',
+                border: '1px solid var(--border-light)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                transition: 'all 0.5s ease',
+                opacity: showTooltip ? 1 : 0,
+                transform: showTooltip ? 'translateX(0)' : 'translateX(10px)',
+                pointerEvents: 'none'
+              }}
+            >
+              Compartir App
+            </span>
+            <button
+              onClick={() => window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent('¡Hola! Te comparto la calculadora de ganancias PickerCal para ver tus comisiones, metas y registrar boletas: https://pickercal.pages.dev'), '_blank')}
+              className="btn flex items-center justify-center shadow-lg"
+              style={{
+                borderRadius: '50%',
+                width: '36px',
+                height: '36px',
+                padding: 0,
+                background: '#25D366',
+                color: 'white',
+                border: 'none',
+                boxShadow: '0 4px 12px rgba(37, 211, 102, 0.3)',
+                fontSize: '16px',
+                cursor: 'pointer',
+                transition: 'transform 0.2s ease'
+              }}
+              title="Compartir por WhatsApp"
+              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.08)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+              type="button"
+            >
+              💬
+            </button>
+          </div>
+
+          {/* Botón Bug Report */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span 
+              className="glass"
+              style={{
+                fontSize: '10px',
+                fontWeight: 600,
+                color: 'var(--text-main)',
+                background: 'var(--card-bg)',
+                padding: '4px 8px',
+                borderRadius: '6px',
+                border: '1px solid var(--border-light)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                transition: 'all 0.5s ease',
+                opacity: showTooltip ? 1 : 0,
+                transform: showTooltip ? 'translateX(0)' : 'translateX(10px)',
+                pointerEvents: 'none'
+              }}
+            >
+              Reportar Error
+            </span>
+            <button
+              onClick={() => setShowBugReportModal(true)}
+              className="btn flex items-center justify-center shadow-lg"
+              style={{
+                borderRadius: '50%',
+                width: '36px',
+                height: '36px',
+                padding: 0,
+                background: 'var(--primary)',
+                color: 'white',
+                border: 'none',
+                boxShadow: '0 4px 12px var(--primary-glow)',
+                fontSize: '16px',
+                cursor: 'pointer',
+                transition: 'transform 0.2s ease'
+              }}
+              title="Reportar Error"
+              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.08)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+              type="button"
+            >
+              🪲
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Modal de Reporte de Errores */}

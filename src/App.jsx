@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calculator as CalcIcon, History, Settings, Moon, Sun, ShoppingBag, Shield } from 'lucide-react';
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../convex/_generated/api";
 import OcrUpload from './components/OcrUpload';
 import Calculator from './components/Calculator';
 import SkuTable from './components/SkuTable';
@@ -15,35 +17,27 @@ import {
 } from './utils/calculatorLogic';
 
 export default function App() {
-  // --- Estado de la Base de Datos Multiperfil ---
-  const [profiles, setProfiles] = useState(() => {
-    const saved = localStorage.getItem('picking_profiles');
-    return saved ? JSON.parse(saved) : [];
-  });
+  // --- Convex Hooks ---
+  const dbProfiles = useQuery(api.profiles.list) || [];
+  const dbAllHistory = useQuery(api.history.getAllHistory) || [];
+  const dbAllSettings = useQuery(api.settings.getAllSettings) || [];
+  const dbAllBonuses = useQuery(api.dailyBonuses.getAllBonuses) || [];
+  const dbReports = useQuery(api.reports.list) || [];
 
+  const createProfileMutation = useMutation(api.profiles.create);
+  const updateProfileMutation = useMutation(api.profiles.update);
+  const addHistoryItemMutation = useMutation(api.history.add);
+  const addHistoryBatchMutation = useMutation(api.history.addBatch);
+  const deleteHistoryItemMutation = useMutation(api.history.deleteItem);
+  const clearHistoryMutation = useMutation(api.history.clear);
+  const saveSettingsMutation = useMutation(api.settings.save);
+  const saveDailyBonusMutation = useMutation(api.dailyBonuses.save);
+  const addReportMutation = useMutation(api.reports.add);
+  const deleteReportMutation = useMutation(api.reports.deleteReport);
+
+  // --- Local states for Active User, Tab, Theme ---
   const [activeRut, setActiveRut] = useState(() => {
     return localStorage.getItem('picking_active_rut') || '';
-  });
-
-  // Base de datos de Ajustes e Historiales por RUT
-  const [settingsDatabase, setSettingsDatabase] = useState(() => {
-    const saved = localStorage.getItem('picking_settings_db');
-    return saved ? JSON.parse(saved) : {};
-  });
-
-  const [historyDatabase, setHistoryDatabase] = useState(() => {
-    const saved = localStorage.getItem('picking_history_db');
-    return saved ? JSON.parse(saved) : {};
-  });
-
-  const [dailyBonusesDatabase, setDailyBonusesDatabase] = useState(() => {
-    const saved = localStorage.getItem('picking_daily_bonuses_db');
-    return saved ? JSON.parse(saved) : {};
-  });
-
-  const [reports, setReports] = useState(() => {
-    const saved = localStorage.getItem('picking_reports');
-    return saved ? JSON.parse(saved) : [];
   });
 
   const [showBugReportModal, setShowBugReportModal] = useState(false);
@@ -51,7 +45,6 @@ export default function App() {
   const [bugScreenshot, setBugScreenshot] = useState(null);
   const [showTooltip, setShowTooltip] = useState(true);
 
-  // --- Estado Activo de Interfaz ---
   const [activeTab, setActiveTab] = useState('calculator'); // 'admin', 'calculator', 'history', 'settings'
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [theme, setTheme] = useState(() => {
@@ -60,30 +53,62 @@ export default function App() {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   });
 
-  // Sincronizar bases de datos con localStorage
-  useEffect(() => {
-    localStorage.setItem('picking_profiles', JSON.stringify(profiles));
-  }, [profiles]);
+  // --- Reconstruct DB structures from Convex data ---
+  const profiles = dbProfiles;
 
+  const settingsDatabase = {};
+  dbAllSettings.forEach(s => {
+    settingsDatabase[s.rut] = {
+      skuTable: s.skuTable,
+      basePayments: s.basePayments,
+      taxRetentionPercent: s.taxRetentionPercent
+    };
+  });
+
+  const historyDatabase = {};
+  dbAllHistory.forEach(h => {
+    if (!historyDatabase[h.rut]) historyDatabase[h.rut] = [];
+    historyDatabase[h.rut].push({
+      id: h.pedidoId,
+      date: h.date,
+      totalProductos: h.totalProductos,
+      sinStock: h.sinStock,
+      pickeados: h.pickeados,
+      sustituidos: h.sustituidos,
+      productosSolicitados: h.productosSolicitados,
+      isWeekendRate: h.isWeekendRate,
+      pickingTime: h.pickingTime,
+      extraBonus: h.extraBonus,
+      earnings: {
+        effectiveSkuCount: h.earnings.effectiveSkuCount,
+        skuRate: h.earnings.skuRate,
+        skuPayment: h.earnings.skuPayment,
+        basePayment: h.earnings.basePayment,
+        extraBonus: h.earnings.extraBonus,
+        grossTotal: h.earnings.grossTotal,
+        taxAmount: h.earnings.taxRetention, // map taxRetention back to taxAmount
+        netTotal: h.earnings.netTotal,
+        isSpecialRate: h.earnings.isSpecialRate
+      }
+    });
+  });
+  // Sort history for each picker
+  Object.keys(historyDatabase).forEach(rut => {
+    historyDatabase[rut].sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
+  });
+
+  const dailyBonusesDatabase = {};
+  dbAllBonuses.forEach(b => {
+    if (!dailyBonusesDatabase[b.rut]) dailyBonusesDatabase[b.rut] = {};
+    dailyBonusesDatabase[b.rut][b.date] = b.amount;
+  });
+
+  const reports = dbReports;
+
+  // --- Sync activeRut to localStorage ---
   useEffect(() => {
     localStorage.setItem('picking_active_rut', activeRut);
   }, [activeRut]);
-
-  useEffect(() => {
-    localStorage.setItem('picking_settings_db', JSON.stringify(settingsDatabase));
-  }, [settingsDatabase]);
-
-  useEffect(() => {
-    localStorage.setItem('picking_history_db', JSON.stringify(historyDatabase));
-  }, [historyDatabase]);
-
-  useEffect(() => {
-    localStorage.setItem('picking_daily_bonuses_db', JSON.stringify(dailyBonusesDatabase));
-  }, [dailyBonusesDatabase]);
-
-  useEffect(() => {
-    localStorage.setItem('picking_reports', JSON.stringify(reports));
-  }, [reports]);
 
   useEffect(() => {
     if (activeRut) {
@@ -138,69 +163,6 @@ export default function App() {
     extraBonus: ''
   });
 
-  // Cargar base de datos desde el servidor al iniciar
-  useEffect(() => {
-    fetch('/api/db')
-      .then(res => {
-        if (!res.ok) throw new Error("HTTP error " + res.status);
-        return res.json();
-      })
-      .then(data => {
-        if (data && data.profiles) {
-          setProfiles(data.profiles);
-          setSettingsDatabase(data.settingsDatabase || {});
-          setHistoryDatabase(data.historyDatabase || {});
-          setDailyBonusesDatabase(data.dailyBonusesDatabase || {});
-          setReports(data.reports || []);
-          
-          localStorage.setItem('picking_profiles', JSON.stringify(data.profiles));
-          localStorage.setItem('picking_settings_db', JSON.stringify(data.settingsDatabase || {}));
-          localStorage.setItem('picking_history_db', JSON.stringify(data.historyDatabase || {}));
-          localStorage.setItem('picking_daily_bonuses_db', JSON.stringify(data.dailyBonusesDatabase || {}));
-          localStorage.setItem('picking_reports', JSON.stringify(data.reports || []));
-        }
-      })
-      .catch(err => {
-        console.warn("No se pudo conectar con el servidor de base de datos local. Usando base de datos del navegador (localStorage).", err);
-      });
-  }, [activeTab]);
-
-  // Sincronizar datos con el servidor Vite
-  const syncDbToServer = (p, s, h, b = dailyBonusesDatabase, r = reports) => {
-    fetch('/api/db', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        profiles: p,
-        settingsDatabase: s,
-        historyDatabase: h,
-        dailyBonusesDatabase: b,
-        reports: r,
-        activeRut: activeRut
-      })
-    })
-      .then(res => {
-        if (!res.ok) throw new Error("HTTP error " + res.status);
-        return res.json();
-      })
-      .then(resData => {
-        if (resData && resData.data) {
-          setProfiles(resData.data.profiles);
-          setSettingsDatabase(resData.data.settingsDatabase || {});
-          setHistoryDatabase(resData.data.historyDatabase || {});
-          setDailyBonusesDatabase(resData.data.dailyBonusesDatabase || {});
-          setReports(resData.data.reports || []);
-          
-          localStorage.setItem('picking_profiles', JSON.stringify(resData.data.profiles));
-          localStorage.setItem('picking_settings_db', JSON.stringify(resData.data.settingsDatabase || {}));
-          localStorage.setItem('picking_history_db', JSON.stringify(resData.data.historyDatabase || {}));
-          localStorage.setItem('picking_daily_bonuses_db', JSON.stringify(resData.data.dailyBonusesDatabase || {}));
-          localStorage.setItem('picking_reports', JSON.stringify(resData.data.reports || []));
-        }
-      })
-      .catch(err => console.warn("No se pudo sincronizar con el servidor de base de datos local.", err));
-  };
-
   const handleBugScreenshotChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -211,26 +173,20 @@ export default function App() {
     reader.readAsDataURL(file);
   };
 
-  const handleSendBugReport = () => {
+  const handleSendBugReport = async () => {
     if (!bugDescription.trim()) {
       alert("Por favor, describe el error.");
       return;
     }
     
-    const activeProfile = profiles.find(p => p.rut === activeRut);
-    const newReport = {
-      id: `rep_${Date.now()}`,
-      pickerName: activeProfile?.name || 'Desconocido',
+    const activeProfileName = activeProfile?.name || 'Desconocido';
+    await addReportMutation({
+      pickerName: activeProfileName,
       pickerRut: activeRut || 'Desconocido',
       description: bugDescription,
-      screenshot: bugScreenshot,
+      screenshot: bugScreenshot || undefined,
       date: new Date().toISOString()
-    };
-    
-    const updatedReports = [newReport, ...reports];
-    setReports(updatedReports);
-    
-    syncDbToServer(profiles, settingsDatabase, historyDatabase, dailyBonusesDatabase, updatedReports);
+    });
     
     setBugDescription('');
     setBugScreenshot(null);
@@ -239,20 +195,23 @@ export default function App() {
   };
 
   // --- Controladores Multiperfil ---
-  const handleCreateProfile = (newProfile) => {
-    let updatedProfiles = profiles;
-    if (!profiles.some(p => p.rut === newProfile.rut)) {
-      updatedProfiles = [...profiles, newProfile];
-      setProfiles(updatedProfiles);
-    }
+  const handleCreateProfile = async (newProfile) => {
+    await createProfileMutation({
+      rut: newProfile.rut,
+      name: newProfile.name,
+      phone: newProfile.phone || undefined,
+      password: newProfile.password
+    });
     setActiveRut(newProfile.rut);
-    syncDbToServer(updatedProfiles, settingsDatabase, historyDatabase);
   };
 
-  const handleUpdateProfile = (updatedProfile) => {
-    const updatedProfiles = profiles.map(p => p.rut === updatedProfile.rut ? updatedProfile : p);
-    setProfiles(updatedProfiles);
-    syncDbToServer(updatedProfiles, settingsDatabase, historyDatabase);
+  const handleUpdateProfile = async (updatedProfile) => {
+    await updateProfileMutation({
+      rut: updatedProfile.rut,
+      name: updatedProfile.name,
+      phone: updatedProfile.phone || undefined,
+      password: updatedProfile.password
+    });
   };
 
   const handleSelectProfile = (rut) => {
@@ -267,24 +226,24 @@ export default function App() {
     }
   };
 
-  const handleSaveUserSettings = (newSettings) => {
+  const handleSaveUserSettings = async (newSettings) => {
     if (!activeRut) return;
-    const updatedSettings = {
-      ...settingsDatabase,
-      [activeRut]: newSettings
-    };
-    setSettingsDatabase(updatedSettings);
-    syncDbToServer(profiles, updatedSettings, historyDatabase);
+    await saveSettingsMutation({
+      rut: activeRut,
+      skuTable: newSettings.skuTable,
+      basePayments: newSettings.basePayments,
+      taxRetentionPercent: newSettings.taxRetentionPercent
+    });
   };
 
-  const handleResetUserSettings = (defaultSettings) => {
+  const handleResetUserSettings = async (defaultSettings) => {
     if (!activeRut) return;
-    const updatedSettings = {
-      ...settingsDatabase,
-      [activeRut]: defaultSettings
-    };
-    setSettingsDatabase(updatedSettings);
-    syncDbToServer(profiles, updatedSettings, historyDatabase);
+    await saveSettingsMutation({
+      rut: activeRut,
+      skuTable: defaultSettings.skuTable,
+      basePayments: defaultSettings.basePayments,
+      taxRetentionPercent: defaultSettings.taxRetentionPercent
+    });
   };
 
   // --- Controladores de Pedidos (Historial) ---
@@ -293,24 +252,36 @@ export default function App() {
   const todayDateStr = orderData.detectedDate || new Date().toISOString().split('T')[0];
   const todayOrdersCount = userHistory.filter(item => item.date === todayDateStr).length;
 
-  const handleSaveToHistory = (orderRecord) => {
+  const handleSaveToHistory = async (orderRecord) => {
     if (!activeRut) {
       alert("Por favor registra un perfil de Picker antes de guardar pedidos.");
       return;
     }
 
-    const newRecord = {
-      ...orderRecord,
-      id: `order_${Date.now()}`
-    };
-
-    const updatedHistory = {
-      ...historyDatabase,
-      [activeRut]: [newRecord, ...userHistory]
-    };
-
-    setHistoryDatabase(updatedHistory);
-    syncDbToServer(profiles, settingsDatabase, updatedHistory);
+    await addHistoryItemMutation({
+      rut: activeRut,
+      pedidoId: orderRecord.pedidoId,
+      date: orderRecord.date,
+      totalProductos: orderRecord.totalProductos,
+      sinStock: orderRecord.sinStock,
+      pickeados: orderRecord.pickeados,
+      sustituidos: orderRecord.sustituidos,
+      productosSolicitados: orderRecord.productosSolicitados,
+      isWeekendRate: orderRecord.isWeekendRate,
+      pickingTime: orderRecord.pickingTime,
+      extraBonus: orderRecord.extraBonus,
+      earnings: {
+        effectiveSkuCount: orderRecord.earnings.effectiveSkuCount,
+        skuRate: orderRecord.earnings.skuRate,
+        skuPayment: orderRecord.earnings.skuPayment,
+        basePayment: orderRecord.earnings.basePayment,
+        extraBonus: orderRecord.earnings.extraBonus,
+        grossTotal: orderRecord.earnings.grossTotal,
+        taxRetention: orderRecord.earnings.taxAmount,
+        netTotal: orderRecord.earnings.netTotal,
+        isSpecialRate: orderRecord.earnings.isSpecialRate
+      }
+    });
 
     // Resetear formulario para el siguiente pedido
     setOrderData({
@@ -329,18 +300,15 @@ export default function App() {
     setActiveTab('history');
   };
 
-  // Agregar lote de múltiples boletas procesadas en OCR
-  const handleBatchConfirm = (batchRecords) => {
+  const handleBatchConfirm = async (batchRecords) => {
     if (!activeRut) {
       alert("Registra un perfil antes de procesar boletas.");
       return;
     }
 
-    const currentList = [...(historyDatabase[activeRut] || [])];
-    
-    batchRecords.forEach((record, index) => {
+    const itemsToSave = batchRecords.map((record) => {
       const dateStr = record.detectedDate || new Date().toISOString().split('T')[0];
-      const sameDayCount = currentList.filter(item => item.date === dateStr).length;
+      const sameDayCount = userHistory.filter(item => item.date === dateStr).length;
       const finalOrderIndex = record.dayOrderIndex || (sameDayCount + 1);
 
       const earnings = calculateEarnings({
@@ -357,73 +325,60 @@ export default function App() {
       const finalTax = Number((finalGross * (userSettings.taxRetentionPercent / 100)).toFixed(2));
       const finalNet = Number((finalGross - finalTax).toFixed(2));
 
-      const newRecord = {
-        id: `order_${Date.now()}_${index}`,
+      return {
         pedidoId: record.pedidoId,
-        totalProducts: record.totalProductos || 0,
+        date: dateStr,
+        totalProductos: record.totalProductos || 0,
         sinStock: record.sinStock || 0,
         pickeados: record.pickeados || 0,
         sustituidos: record.sustituidos || 0,
         productosSolicitados: record.productosSolicitados || 0,
         isWeekendRate: record.isWeekendRate,
-        date: dateStr,
         pickingTime: record.pickingTime || '0:00',
         extraBonus: record.extraBonus || 0,
-        dayOrderIndex: finalOrderIndex,
         earnings: {
-          ...earnings,
+          effectiveSkuCount: earnings.effectiveSkuCount,
+          skuRate: earnings.skuRate,
+          skuPayment: earnings.skuPayment,
+          basePayment: earnings.basePayment,
+          extraBonus: record.extraBonus || 0,
           grossTotal: finalGross,
-          taxAmount: finalTax,
-          netTotal: finalNet
+          taxRetention: finalTax,
+          netTotal: finalNet,
+          isSpecialRate: finalOrderIndex >= 14
         }
       };
-
-      currentList.unshift(newRecord);
     });
 
-    const updatedHistory = {
-      ...historyDatabase,
-      [activeRut]: currentList
-    };
+    await addHistoryBatchMutation({
+      rut: activeRut,
+      items: itemsToSave
+    });
 
-    setHistoryDatabase(updatedHistory);
-    syncDbToServer(profiles, settingsDatabase, updatedHistory);
     setActiveTab('history');
   };
 
-  const handleDeleteHistoryItem = (id) => {
+  const handleDeleteHistoryItem = async (id) => {
     if (!activeRut) return;
-    const updatedHistory = {
-      ...historyDatabase,
-      [activeRut]: (historyDatabase[activeRut] || []).filter(item => item.id !== id)
-    };
-    setHistoryDatabase(updatedHistory);
-    syncDbToServer(profiles, settingsDatabase, updatedHistory);
+    if (window.confirm("¿Seguro que deseas eliminar este pedido de tu historial?")) {
+      await deleteHistoryItemMutation({ rut: activeRut, pedidoId: id });
+    }
   };
 
-  const handleClearHistory = () => {
+  const handleClearHistory = async () => {
     if (!activeRut) return;
-    const updatedHistory = {
-      ...historyDatabase,
-      [activeRut]: []
-    };
-    setHistoryDatabase(updatedHistory);
-    syncDbToServer(profiles, settingsDatabase, updatedHistory);
+    if (window.confirm("ATENCIÓN: Se eliminará permanentemente todo tu historial de pedidos. Esta acción no se puede deshacer. ¿Deseas continuar?")) {
+      await clearHistoryMutation({ rut: activeRut });
+    }
   };
 
-  const handleSaveDailyBonus = (date, val) => {
+  const handleSaveDailyBonus = async (date, val) => {
     if (!activeRut) return;
-    const userBonuses = dailyBonusesDatabase[activeRut] || {};
-    const updatedUserBonuses = {
-      ...userBonuses,
-      [date]: val
-    };
-    const updatedDatabase = {
-      ...dailyBonusesDatabase,
-      [activeRut]: updatedUserBonuses
-    };
-    setDailyBonusesDatabase(updatedDatabase);
-    syncDbToServer(profiles, settingsDatabase, historyDatabase, updatedDatabase);
+    await saveDailyBonusMutation({
+      rut: activeRut,
+      date: date,
+      amount: val
+    });
   };
 
   const toggleTheme = () => {

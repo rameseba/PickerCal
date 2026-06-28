@@ -530,14 +530,14 @@ export default function AdminPanel({
             ) : (
               <div className="grid-1 gap-3">
                 {reports.map((rep) => (
-                  <div key={rep.id} className="card p-3 flex flex-col gap-2 relative" style={{ background: 'var(--bg-color)', border: '1px solid var(--border-light)' }}>
+                  <div key={rep.id || rep._id} className="card p-3 flex flex-col gap-2 relative" style={{ background: 'var(--bg-color)', border: '1px solid var(--border-light)' }}>
                     <div className="flex justify-between items-start">
                       <div>
                         <span className="font-bold text-xs block text-gray-800">{rep.pickerName}</span>
                         <span className="text-xxs text-muted block">RUT: {rep.pickerRut} | Enviado: {new Date(rep.date).toLocaleString('es-CL')}</span>
                       </div>
                       <button
-                        onClick={() => onDeleteReport && onDeleteReport(rep.id)}
+                        onClick={() => onDeleteReport && onDeleteReport(rep.id || rep._id)}
                         className="btn btn-sm btn-danger text-xxs px-2 py-1 rounded"
                         style={{ height: '24px', padding: '0 8px' }}
                       >

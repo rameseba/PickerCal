@@ -2,10 +2,18 @@ import React, { useState } from 'react';
 import { Search, User, Phone, FileText, CheckCircle, Settings, Calendar, TrendingUp, Clock, Hash, ChevronDown, ChevronUp } from 'lucide-react';
 import { DEFAULT_SKU_TABLE, DEFAULT_BASE_PAYMENTS, DEFAULT_TAX_RETENTION } from '../utils/calculatorLogic';
 
-export default function AdminPanel({ profiles, historyDatabase, settingsDatabase, dailyBonusesDatabase = {} }) {
+export default function AdminPanel({
+  profiles,
+  historyDatabase,
+  settingsDatabase,
+  dailyBonusesDatabase = {},
+  reports = [],
+  onDeleteReport
+}) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRut, setSelectedRut] = useState('');
   const [showSettingsDetails, setShowSettingsDetails] = useState(false);
+  const [adminSection, setAdminSection] = useState('pickers'); // 'pickers' or 'reports'
 
   const formatCLP = (val) => {
     return new Intl.NumberFormat('es-CL', {
@@ -250,7 +258,33 @@ export default function AdminPanel({ profiles, historyDatabase, settingsDatabase
         <p className="card-subtitle">Auditoría centralizada de tarifas, tiempos y reportes por RUT de Picker.</p>
       </div>
 
-      <div className="card-body admin-layout">
+      {/* Selector de Sección del Panel */}
+      <div className="flex gap-2 mb-4 pb-2 border-b mx-4">
+        <button
+          onClick={() => setAdminSection('pickers')}
+          className={`btn text-xs py-1 px-3 rounded-md transition-all ${adminSection === 'pickers' ? 'btn-primary' : 'btn-secondary'}`}
+          style={{ height: '30px' }}
+        >
+          <User size={14} />
+          <span>Pickers y Rendimiento</span>
+        </button>
+        <button
+          onClick={() => setAdminSection('reports')}
+          className={`btn text-xs py-1 px-3 rounded-md transition-all relative ${adminSection === 'reports' ? 'btn-primary' : 'btn-secondary'}`}
+          style={{ height: '30px' }}
+        >
+          <span>🪲 Reportes de Errores</span>
+          {reports.length > 0 && (
+            <span className="badge badge-success text-[10px] ml-2 px-1.5 py-0">
+              {reports.length}
+            </span>
+          )}
+        </button>
+      </div>
+
+      <div className="card-body">
+        {adminSection === 'pickers' ? (
+          <div className="admin-layout">
         {/* Lado Izquierdo: Buscador y Listado de Usuarios */}
         <div className="admin-sidebar">
           <div className="form-group mb-3">
@@ -481,6 +515,62 @@ export default function AdminPanel({ profiles, historyDatabase, settingsDatabase
             </div>
           )}
         </div>
+      </div>
+    ) : (
+          <div className="w-full flex flex-col gap-4">
+            <div className="flex justify-between items-center">
+              <h3 className="font-bold text-sm text-gray-800">Reportes de Errores Recibidos</h3>
+              <span className="text-xxs text-muted">Total: {reports.length} reportes</span>
+            </div>
+
+            {reports.length === 0 ? (
+              <div className="text-center py-8 card border bg-white bg-opacity-5">
+                <p className="text-muted text-xs">No hay reportes de errores registrados.</p>
+              </div>
+            ) : (
+              <div className="grid-1 gap-3">
+                {reports.map((rep) => (
+                  <div key={rep.id} className="card p-3 flex flex-col gap-2 relative" style={{ background: 'var(--bg-color)', border: '1px solid var(--border-light)' }}>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <span className="font-bold text-xs block text-gray-800">{rep.pickerName}</span>
+                        <span className="text-xxs text-muted block">RUT: {rep.pickerRut} | Enviado: {new Date(rep.date).toLocaleString('es-CL')}</span>
+                      </div>
+                      <button
+                        onClick={() => onDeleteReport && onDeleteReport(rep.id)}
+                        className="btn btn-sm btn-danger text-xxs px-2 py-1 rounded"
+                        style={{ height: '24px', padding: '0 8px' }}
+                      >
+                        Resolver / Eliminar
+                      </button>
+                    </div>
+
+                    <div className="bg-white bg-opacity-50 p-2.5 rounded border text-xs text-gray-800 font-medium whitespace-pre-wrap mt-1">
+                      {rep.description}
+                    </div>
+
+                    {rep.screenshot && (
+                      <div className="mt-2">
+                        <p className="text-xxs text-muted mb-1 font-semibold">Captura adjunta:</p>
+                        <div className="inline-block relative cursor-pointer" onClick={() => window.open(rep.screenshot, '_blank')}>
+                          <img 
+                            src={rep.screenshot} 
+                            alt="Screenshot" 
+                            className="rounded border hover:opacity-90 transition-opacity" 
+                            style={{ maxHeight: '150px', maxWidth: '100%', objectFit: 'contain' }} 
+                          />
+                          <span className="absolute bottom-1 right-1 bg-black bg-opacity-65 text-[9px] text-white px-1.5 py-0.5 rounded font-semibold">
+                            Click para ampliar
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

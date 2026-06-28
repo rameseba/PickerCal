@@ -41,6 +41,15 @@ export default function App() {
     return saved ? JSON.parse(saved) : {};
   });
 
+  const [reports, setReports] = useState(() => {
+    const saved = localStorage.getItem('picking_reports');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [showBugReportModal, setShowBugReportModal] = useState(false);
+  const [bugDescription, setBugDescription] = useState('');
+  const [bugScreenshot, setBugScreenshot] = useState(null);
+
   // --- Estado Activo de Interfaz ---
   const [activeTab, setActiveTab] = useState('calculator'); // 'admin', 'calculator', 'history', 'settings'
   const [isAdminMode, setIsAdminMode] = useState(false);
@@ -70,6 +79,10 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('picking_daily_bonuses_db', JSON.stringify(dailyBonusesDatabase));
   }, [dailyBonusesDatabase]);
+
+  useEffect(() => {
+    localStorage.setItem('picking_reports', JSON.stringify(reports));
+  }, [reports]);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -127,11 +140,13 @@ export default function App() {
           setSettingsDatabase(data.settingsDatabase || {});
           setHistoryDatabase(data.historyDatabase || {});
           setDailyBonusesDatabase(data.dailyBonusesDatabase || {});
+          setReports(data.reports || []);
           
           localStorage.setItem('picking_profiles', JSON.stringify(data.profiles));
           localStorage.setItem('picking_settings_db', JSON.stringify(data.settingsDatabase || {}));
           localStorage.setItem('picking_history_db', JSON.stringify(data.historyDatabase || {}));
           localStorage.setItem('picking_daily_bonuses_db', JSON.stringify(data.dailyBonusesDatabase || {}));
+          localStorage.setItem('picking_reports', JSON.stringify(data.reports || []));
         }
       })
       .catch(err => {
@@ -140,7 +155,7 @@ export default function App() {
   }, [activeTab]);
 
   // Sincronizar datos con el servidor Vite
-  const syncDbToServer = (p, s, h, b = dailyBonusesDatabase) => {
+  const syncDbToServer = (p, s, h, b = dailyBonusesDatabase, r = reports) => {
     fetch('/api/db', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -149,6 +164,7 @@ export default function App() {
         settingsDatabase: s,
         historyDatabase: h,
         dailyBonusesDatabase: b,
+        reports: r,
         activeRut: activeRut
       })
     })
@@ -162,14 +178,53 @@ export default function App() {
           setSettingsDatabase(resData.data.settingsDatabase || {});
           setHistoryDatabase(resData.data.historyDatabase || {});
           setDailyBonusesDatabase(resData.data.dailyBonusesDatabase || {});
+          setReports(resData.data.reports || []);
           
           localStorage.setItem('picking_profiles', JSON.stringify(resData.data.profiles));
           localStorage.setItem('picking_settings_db', JSON.stringify(resData.data.settingsDatabase || {}));
           localStorage.setItem('picking_history_db', JSON.stringify(resData.data.historyDatabase || {}));
           localStorage.setItem('picking_daily_bonuses_db', JSON.stringify(resData.data.dailyBonusesDatabase || {}));
+          localStorage.setItem('picking_reports', JSON.stringify(resData.data.reports || []));
         }
       })
       .catch(err => console.warn("No se pudo sincronizar con el servidor de base de datos local.", err));
+  };
+
+  const handleBugScreenshotChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setBugScreenshot(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSendBugReport = () => {
+    if (!bugDescription.trim()) {
+      alert("Por favor, describe el error.");
+      return;
+    }
+    
+    const activeProfile = profiles.find(p => p.rut === activeRut);
+    const newReport = {
+      id: `rep_${Date.now()}`,
+      pickerName: activeProfile?.name || 'Desconocido',
+      pickerRut: activeRut || 'Desconocido',
+      description: bugDescription,
+      screenshot: bugScreenshot,
+      date: new Date().toISOString()
+    };
+    
+    const updatedReports = [newReport, ...reports];
+    setReports(updatedReports);
+    
+    syncDbToServer(profiles, settingsDatabase, historyDatabase, dailyBonusesDatabase, updatedReports);
+    
+    setBugDescription('');
+    setBugScreenshot(null);
+    setShowBugReportModal(false);
+    alert("¡Muchas gracias! Tu reporte de error ha sido enviado y registrado en el panel del administrador.");
   };
 
   // --- Controladores Multiperfil ---
@@ -419,16 +474,24 @@ export default function App() {
         {/* Solo mostrar la UI si hay un perfil activo o si estamos en modo Admin */}
         {activeProfile || isAdminMode ? (
           <div className="active-tab-container w-full max-w-4xl mx-auto flex flex-col gap-6">
-            {activeTab === 'admin' && isAdminMode && (
-              <AdminPanel 
-                profiles={profiles} 
-                historyDatabase={historyDatabase} 
-                settingsDatabase={settingsDatabase}
-                dailyBonusesDatabase={dailyBonusesDatabase}
-              />
-            )}
-
-            {activeTab === 'calculator' && (
+            {activeTab === 'admin' && (
+              <div className="w-full flex justify-center">
+                <AdminPanel 
+                  profiles={profiles} 
+                  historyDatabase={historyDatabase} 
+                  settingsDatabase={settingsDatabase}
+                  dailyBonusesDatabase={dailyBonusesDatabase}
+                  reports={reports}
+                  onDeleteReport={(reportId) => {
+                    if (window.confirm("¿Seguro que deseas resolver y eliminar este reporte de error?")) {
+                      const updatedReports = reports.filter(r => r.id !== reportId);
+                      setReports(updatedReports);
+                      syncDbToServer(profiles, settingsDatabase, historyDatabase, dailyBonusesDatabase, updatedReports);
+                    }
+                  }}
+                />
+              </div>
+            )}{activeTab === 'calculator' && (
               <div className="flex flex-col gap-6 w-full">
                 {/* OCR Multi-boletas */}
                 <OcrUpload 
@@ -544,6 +607,97 @@ export default function App() {
             </button>
           </div>
         </nav>
+      )}
+      {/* Botón flotante para reportar errores */}
+      {activeRut && (
+        <button
+          onClick={() => setShowBugReportModal(true)}
+          className="btn flex items-center justify-center shadow-lg"
+          style={{
+            position: 'fixed',
+            bottom: '76px', // encima de la barra de navegación
+            right: '16px',
+            zIndex: 100,
+            borderRadius: '50%',
+            width: '42px',
+            height: '42px',
+            padding: 0,
+            background: 'var(--primary)',
+            color: 'white',
+            border: 'none',
+            boxShadow: '0 4px 12px var(--primary-glow)',
+            fontSize: '18px'
+          }}
+          title="Reportar Error"
+        >
+          🪲
+        </button>
+      )}
+
+      {/* Modal de Reporte de Errores */}
+      {showBugReportModal && (
+        <div className="preview-modal-overlay">
+          <div className="preview-modal-content card glass p-4" style={{ maxWidth: '400px', width: '92%' }}>
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="font-bold text-sm text-gradient">Reportar un Error</h3>
+              <button 
+                onClick={() => {
+                  setShowBugReportModal(false);
+                  setBugDescription('');
+                  setBugScreenshot(null);
+                }}
+                className="btn btn-secondary btn-icon"
+                style={{ width: '24px', height: '24px', padding: '0' }}
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="flex flex-col gap-3">
+              <div className="form-group">
+                <label className="text-xxs">Descripción del Error</label>
+                <textarea
+                  value={bugDescription}
+                  onChange={(e) => setBugDescription(e.target.value)}
+                  placeholder="Describe detalladamente qué falló o qué error ocurrió..."
+                  className="input-field text-xs"
+                  style={{ height: '80px', resize: 'none', padding: '8px 10px' }}
+                />
+              </div>
+              
+              <div className="form-group">
+                <label className="text-xxs">Captura de Pantalla (Opcional)</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleBugScreenshotChange}
+                  className="input-field text-xs p-1"
+                  style={{ height: '36px' }}
+                />
+              </div>
+
+              {bugScreenshot && (
+                <div className="text-center mt-1">
+                  <p className="text-xxs text-muted mb-1">Previsualización de captura:</p>
+                  <img 
+                    src={bugScreenshot} 
+                    alt="Captura de error" 
+                    className="rounded border" 
+                    style={{ maxHeight: '100px', maxWidth: '100%', objectFit: 'contain', margin: '0 auto' }} 
+                  />
+                </div>
+              )}
+
+              <button
+                onClick={handleSendBugReport}
+                className="btn btn-primary w-full text-xs mt-2"
+                style={{ height: '36px' }}
+              >
+                Enviar Reporte
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

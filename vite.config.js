@@ -11,14 +11,21 @@ const DATA_FILE = path.resolve(__dirname, 'db.json');
 // Leer base de datos local
 function readDb() {
   if (!fs.existsSync(DATA_FILE)) {
-    return { profiles: [], settingsDatabase: {}, historyDatabase: {}, dailyBonusesDatabase: {} };
+    return { profiles: [], settingsDatabase: {}, historyDatabase: {}, dailyBonusesDatabase: {}, reports: [] };
   }
   try {
     const content = fs.readFileSync(DATA_FILE, 'utf-8');
-    return JSON.parse(content);
+    const parsed = JSON.parse(content);
+    return {
+      profiles: parsed.profiles || [],
+      settingsDatabase: parsed.settingsDatabase || {},
+      historyDatabase: parsed.historyDatabase || {},
+      dailyBonusesDatabase: parsed.dailyBonusesDatabase || {},
+      reports: parsed.reports || []
+    };
   } catch (e) {
     console.error("Error leyendo db.json, restableciendo:", e);
-    return { profiles: [], settingsDatabase: {}, historyDatabase: {}, dailyBonusesDatabase: {} };
+    return { profiles: [], settingsDatabase: {}, historyDatabase: {}, dailyBonusesDatabase: {}, reports: [] };
   }
 }
 
@@ -62,7 +69,8 @@ export default defineConfig({
                       profiles: data.profiles || [],
                       settingsDatabase: data.settingsDatabase || {},
                       historyDatabase: data.historyDatabase || {},
-                      dailyBonusesDatabase: data.dailyBonusesDatabase || {}
+                      dailyBonusesDatabase: data.dailyBonusesDatabase || {},
+                      reports: data.reports || []
                     };
                   } else {
                     // Si es un picker normal:
@@ -112,11 +120,20 @@ export default defineConfig({
                       });
                     }
 
+                    // 5. Fusionar reportes de errores
+                    const mergedReports = [...(currentDb.reports || [])];
+                    (data.reports || []).forEach(incomingRep => {
+                      if (!mergedReports.some(r => r.id === incomingRep.id)) {
+                        mergedReports.push(incomingRep);
+                      }
+                    });
+
                     updatedDb = {
                       profiles: mergedProfiles,
                       settingsDatabase: mergedSettings,
                       historyDatabase: mergedHistory,
-                      dailyBonusesDatabase: mergedDailyBonuses
+                      dailyBonusesDatabase: mergedDailyBonuses,
+                      reports: mergedReports
                     };
                   }
 

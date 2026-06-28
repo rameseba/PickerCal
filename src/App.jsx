@@ -238,6 +238,12 @@ export default function App() {
     syncDbToServer(updatedProfiles, settingsDatabase, historyDatabase);
   };
 
+  const handleUpdateProfile = (updatedProfile) => {
+    const updatedProfiles = profiles.map(p => p.rut === updatedProfile.rut ? updatedProfile : p);
+    setProfiles(updatedProfiles);
+    syncDbToServer(updatedProfiles, settingsDatabase, historyDatabase);
+  };
+
   const handleSelectProfile = (rut) => {
     setActiveRut(rut);
   };
@@ -467,6 +473,7 @@ export default function App() {
           onSelectProfile={handleSelectProfile}
           onCreateProfile={handleCreateProfile}
           onLogoutProfile={handleLogoutProfile}
+          onUpdateProfile={handleUpdateProfile}
           isAdminMode={isAdminMode}
           onChangeAdminMode={handleToggleAdminMode}
         />

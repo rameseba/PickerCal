@@ -410,8 +410,8 @@ export default function App() {
       <header className="app-header glass">
         <div className="header-content container">
           <div className="logo-section">
-            <div className="logo-icon-bg">
-              <ShoppingBag className="logo-icon" size={24} />
+            <div className="logo-icon-bg" style={{ overflow: 'hidden', padding: 0 }}>
+              <img src="/logo.png" alt="PickerCal Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
             <div>
               <h1 className="logo-title text-gradient">PickerCal</h1>
@@ -521,16 +521,29 @@ export default function App() {
       </main>
 
       {/* Footer / Firma */}
-      <footer className="app-footer text-center py-4 text-xxs text-muted border-t mt-6">
-        <span>Diseñado con pasión por </span>
+      <footer className="app-footer text-center py-6 border-t mt-8 bg-white bg-opacity-5" style={{ borderRadius: '16px', padding: '20px', margin: '20px auto', maxWidth: '600px', width: '92%', border: '1px solid var(--border-light)' }}>
+        <p className="text-xxs text-muted mb-2 uppercase tracking-widest font-bold">Créditos de Desarrollo</p>
+        <p className="text-xs text-gray-700 leading-relaxed">
+          Diseñado y desarrollado con excelencia por{" "}
+          <a 
+            href="https://rameseba.com" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="font-bold text-primary hover:underline hover:scale-105 inline-block transition-all duration-200"
+            style={{ fontWeight: 800 }}
+          >
+            rameseba.com
+          </a>
+        </p>
+        <p className="text-xxs text-muted mt-2">
+          ¿Necesitas una plataforma web, e-commerce o una aplicación móvil personalizada?
+        </p>
         <a 
-          href="https://rameseba.com" 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          className="font-bold text-primary hover:underline hover:scale-105 inline-block transition-all duration-200"
-          style={{ textShadow: '0 0 8px var(--primary-glow)' }}
+          href="mailto:contacto@rameseba.com?subject=Consulta%20desde%20PickerCal"
+          className="btn btn-secondary btn-sm mt-3 inline-flex items-center gap-1.5 text-xxs py-1.5 px-4 rounded-lg font-bold"
+          style={{ background: 'var(--card-bg)', border: '1px solid var(--border-light)', color: 'var(--text-main)' }}
         >
-          @rameseba
+          ✉️ contacto@rameseba.com
         </a>
       </footer>
 

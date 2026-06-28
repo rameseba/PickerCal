@@ -302,10 +302,10 @@ export default function OrderHistory({
               <span className="text-[9px] text-muted">Ciclo: {weeklyMetrics.mondayStr} - {weeklyMetrics.sundayStr}</span>
             </div>
             <div className="stats-box stats-secondary p-3">
-              <Clock className="stats-icon text-secondary" size={16} />
+              <Hash className="stats-icon text-secondary" size={16} />
               <span className="stats-title text-[10px]">Resumen Semanal</span>
-              <span className="stats-val text-sm">{weeklyMetrics.weeklyOrdersCount} ped. / {weeklyMetrics.weeklyWorkedDatesCount} d.</span>
-              <span className="text-[9px] text-muted">Picking: {formatMinutes(weeklyMetrics.weeklyMins)}</span>
+              <span className="stats-val text-sm">{weeklyMetrics.weeklyOrdersCount} pedidos</span>
+              <span className="text-[9px] text-muted">{weeklyMetrics.weeklyWorkedDatesCount} días trabajados</span>
             </div>
             <div className="stats-box stats-muted p-3">
               <Calendar className="stats-icon text-muted" size={16} />

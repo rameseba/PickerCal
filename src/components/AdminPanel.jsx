@@ -374,9 +374,9 @@ export default function AdminPanel({
                   <span className="stats-val text-sm">{formatCLP(totalNet)}</span>
                 </div>
                 <div className="stats-box stats-secondary p-3">
-                  <Clock className="stats-icon text-secondary" size={16} />
-                  <span className="stats-title text-xxs">Tiempo de Picking</span>
-                  <span className="stats-val text-sm">{formatMinutes(totalMinutes)}</span>
+                  <TrendingUp className="stats-icon text-secondary" size={16} />
+                  <span className="stats-title text-xxs">Promedio Diario</span>
+                  <span className="stats-val text-sm">{totalDaysWorked > 0 ? formatCLP(totalNet / totalDaysWorked) : '$0'}</span>
                 </div>
                 <div className="stats-box stats-muted p-3">
                   <Hash className="stats-icon text-muted" size={16} />
@@ -399,7 +399,6 @@ export default function AdminPanel({
                           <tr>
                             <th>Semana (Lun - Dom)</th>
                             <th>Pedidos</th>
-                            <th>Tiempo Picking</th>
                             <th>Monto Líquido</th>
                             <th>Fecha Estimada Pago</th>
                           </tr>
@@ -411,7 +410,6 @@ export default function AdminPanel({
                                 {new Date(w.monday + 'T00:00:00').toLocaleDateString('es-CL', { day: '2-digit', month: 'short' })} - {new Date(w.sunday + 'T00:00:00').toLocaleDateString('es-CL', { day: '2-digit', month: 'short' })}
                               </td>
                               <td className="font-semibold">{w.orders}</td>
-                              <td>{formatMinutes(w.mins)}</td>
                               <td className="font-bold text-primary">{formatCLP(w.netTotal)}</td>
                               <td className="text-xs font-medium">
                                 {(() => {
@@ -460,7 +458,6 @@ export default function AdminPanel({
                           <tr>
                             <th>Mes</th>
                             <th>Pedidos</th>
-                            <th>Tiempo Picking</th>
                             <th>Monto Líquido</th>
                           </tr>
                         </thead>
@@ -469,7 +466,6 @@ export default function AdminPanel({
                             <tr key={idx}>
                               <td className="text-xs font-semibold capitalize">{m.label}</td>
                               <td>{m.orders}</td>
-                              <td>{formatMinutes(m.mins)}</td>
                               <td className="font-bold text-primary">{formatCLP(m.netTotal)}</td>
                             </tr>
                           ))}
@@ -491,7 +487,6 @@ export default function AdminPanel({
                           <tr>
                             <th>Fecha</th>
                             <th>Pedidos del Día</th>
-                            <th>Tiempo Picking</th>
                             <th>Monto Líquido</th>
                           </tr>
                         </thead>
@@ -502,7 +497,6 @@ export default function AdminPanel({
                                 {new Date(d.date + 'T00:00:00').toLocaleDateString('es-CL', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}
                               </td>
                               <td className="font-semibold">{d.orderCount}</td>
-                              <td>{d.pickingTime}</td>
                               <td className="font-bold text-primary">{formatCLP(d.netTotal)}</td>
                             </tr>
                           ))}

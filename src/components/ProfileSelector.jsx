@@ -175,8 +175,8 @@ export default function ProfileSelector({
     return (
       <div className="card glass max-w-md mx-auto my-4 profile-login-card">
         <div className="card-header text-center">
-          <div className="logo-icon-bg mx-auto mb-2" style={{ width: '50px', height: '50px' }}>
-            <User size={28} />
+          <div className="logo-icon-bg mx-auto mb-2" style={{ width: '50px', height: '50px', overflow: 'hidden', padding: 0 }}>
+            <img src="/logo.png" alt="PickerCal Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
           <h2 className="text-gradient font-bold text-lg">
             {step === 'rut' && 'Iniciar Sesión / Registro'}

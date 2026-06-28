@@ -13,6 +13,7 @@ export default function Calculator({
   const [activeSubTab, setActiveSubTab] = useState('individual'); // 'individual' or 'quick'
   const [quickDate, setQuickDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [quickOrderCount, setQuickOrderCount] = useState('');
+  const [includeSkuCommission, setIncludeSkuCommission] = useState(true);
 
   const {
     pedidoId,
@@ -71,13 +72,14 @@ export default function Calculator({
     
     const batch = [];
     for (let i = 1; i <= count; i++) {
+      const skuCount = includeSkuCommission ? 24 : 0;
       batch.push({
         pedidoId: `R-${quickDate.slice(-5).replace('-', '')}-${String(i).padStart(2, '0')}`,
-        totalProductos: 24,
+        totalProductos: skuCount,
         sinStock: 0,
-        pickeados: 24,
+        pickeados: skuCount,
         sustituidos: 0,
-        productosSolicitados: 24,
+        productosSolicitados: skuCount,
         isWeekendRate: isWeekend,
         detectedDate: quickDate,
         pickingTime: '0:42',
@@ -322,7 +324,7 @@ export default function Calculator({
               </div>
               
               <div className="bg-info bg-opacity-10 border border-info border-opacity-20 text-info p-3 rounded-xl text-xxs leading-relaxed">
-                ℹ️ <strong>Cómo funciona:</strong> Se generarán automáticamente los pedidos correspondientes a esa fecha con parámetros promedio (24 ítems efectivos, 0 sin stock y 42 minutos de picking). Se aplicará la tarifa de fin de semana/semana correspondiente y la regla de $2.500 a partir del pedido 14.
+                ℹ️ <strong>Cómo funciona:</strong> Se generarán automáticamente los pedidos correspondientes a esa fecha. Puedes elegir si incluir comisión por SKU (24 SKU por pedido) o dejarlos con 0 SKU si solo cuentan para la meta base por cantidad de pedidos (metas fijas).
               </div>
 
               <div className="form-group">
@@ -344,6 +346,20 @@ export default function Calculator({
                   onChange={(e) => setQuickOrderCount(Math.max(0, parseInt(e.target.value, 10) || ''))}
                   className="input-field table-input text-xs"
                 />
+              </div>
+
+              <div className="form-group flex flex-row items-center gap-2 mt-1 select-none cursor-pointer">
+                <input
+                  type="checkbox"
+                  id="includeSkuCommission"
+                  checked={includeSkuCommission}
+                  onChange={(e) => setIncludeSkuCommission(e.target.checked)}
+                  className="w-4 h-4 rounded text-primary focus:ring-primary cursor-pointer"
+                  style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                />
+                <label htmlFor="includeSkuCommission" className="text-xxs font-semibold cursor-pointer text-gray-700" style={{ cursor: 'pointer' }}>
+                  Incluir comisión por SKU (24 SKU por pedido)
+                </label>
               </div>
 
               <button

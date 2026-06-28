@@ -15,6 +15,383 @@
   "historyDatabase": {
     "20.382.650-8": [
       {
+        "id": "order_1782627836614_12",
+        "pedidoId": "R-0628-13",
+        "totalProducts": 24,
+        "sinStock": 0,
+        "pickeados": 24,
+        "sustituidos": 0,
+        "productosSolicitados": 24,
+        "isWeekendRate": true,
+        "date": "2026-06-28",
+        "pickingTime": "0:42",
+        "extraBonus": 0,
+        "dayOrderIndex": 26,
+        "earnings": {
+          "effectiveSkuCount": 24,
+          "skuRate": 60,
+          "skuPayment": 1440,
+          "basePayment": 2500,
+          "grossTotal": 3940,
+          "taxAmount": 600.85,
+          "netTotal": 3339.15,
+          "appliedRange": {
+            "min": 22,
+            "max": 31,
+            "value": 60
+          },
+          "isSpecialRate": true
+        }
+      },
+      {
+        "id": "order_1782627836614_11",
+        "pedidoId": "R-0628-12",
+        "totalProducts": 24,
+        "sinStock": 0,
+        "pickeados": 24,
+        "sustituidos": 0,
+        "productosSolicitados": 24,
+        "isWeekendRate": true,
+        "date": "2026-06-28",
+        "pickingTime": "0:42",
+        "extraBonus": 0,
+        "dayOrderIndex": 25,
+        "earnings": {
+          "effectiveSkuCount": 24,
+          "skuRate": 60,
+          "skuPayment": 1440,
+          "basePayment": 2500,
+          "grossTotal": 3940,
+          "taxAmount": 600.85,
+          "netTotal": 3339.15,
+          "appliedRange": {
+            "min": 22,
+            "max": 31,
+            "value": 60
+          },
+          "isSpecialRate": true
+        }
+      },
+      {
+        "id": "order_1782627836614_10",
+        "pedidoId": "R-0628-11",
+        "totalProducts": 24,
+        "sinStock": 0,
+        "pickeados": 24,
+        "sustituidos": 0,
+        "productosSolicitados": 24,
+        "isWeekendRate": true,
+        "date": "2026-06-28",
+        "pickingTime": "0:42",
+        "extraBonus": 0,
+        "dayOrderIndex": 24,
+        "earnings": {
+          "effectiveSkuCount": 24,
+          "skuRate": 60,
+          "skuPayment": 1440,
+          "basePayment": 2500,
+          "grossTotal": 3940,
+          "taxAmount": 600.85,
+          "netTotal": 3339.15,
+          "appliedRange": {
+            "min": 22,
+            "max": 31,
+            "value": 60
+          },
+          "isSpecialRate": true
+        }
+      },
+      {
+        "id": "order_1782627836614_9",
+        "pedidoId": "R-0628-10",
+        "totalProducts": 24,
+        "sinStock": 0,
+        "pickeados": 24,
+        "sustituidos": 0,
+        "productosSolicitados": 24,
+        "isWeekendRate": true,
+        "date": "2026-06-28",
+        "pickingTime": "0:42",
+        "extraBonus": 0,
+        "dayOrderIndex": 23,
+        "earnings": {
+          "effectiveSkuCount": 24,
+          "skuRate": 60,
+          "skuPayment": 1440,
+          "basePayment": 2500,
+          "grossTotal": 3940,
+          "taxAmount": 600.85,
+          "netTotal": 3339.15,
+          "appliedRange": {
+            "min": 22,
+            "max": 31,
+            "value": 60
+          },
+          "isSpecialRate": true
+        }
+      },
+      {
+        "id": "order_1782627836614_8",
+        "pedidoId": "R-0628-09",
+        "totalProducts": 24,
+        "sinStock": 0,
+        "pickeados": 24,
+        "sustituidos": 0,
+        "productosSolicitados": 24,
+        "isWeekendRate": true,
+        "date": "2026-06-28",
+        "pickingTime": "0:42",
+        "extraBonus": 0,
+        "dayOrderIndex": 22,
+        "earnings": {
+          "effectiveSkuCount": 24,
+          "skuRate": 60,
+          "skuPayment": 1440,
+          "basePayment": 2500,
+          "grossTotal": 3940,
+          "taxAmount": 600.85,
+          "netTotal": 3339.15,
+          "appliedRange": {
+            "min": 22,
+            "max": 31,
+            "value": 60
+          },
+          "isSpecialRate": true
+        }
+      },
+      {
+        "id": "order_1782627836614_7",
+        "pedidoId": "R-0628-08",
+        "totalProducts": 24,
+        "sinStock": 0,
+        "pickeados": 24,
+        "sustituidos": 0,
+        "productosSolicitados": 24,
+        "isWeekendRate": true,
+        "date": "2026-06-28",
+        "pickingTime": "0:42",
+        "extraBonus": 0,
+        "dayOrderIndex": 21,
+        "earnings": {
+          "effectiveSkuCount": 24,
+          "skuRate": 60,
+          "skuPayment": 1440,
+          "basePayment": 2500,
+          "grossTotal": 3940,
+          "taxAmount": 600.85,
+          "netTotal": 3339.15,
+          "appliedRange": {
+            "min": 22,
+            "max": 31,
+            "value": 60
+          },
+          "isSpecialRate": true
+        }
+      },
+      {
+        "id": "order_1782627836614_6",
+        "pedidoId": "R-0628-07",
+        "totalProducts": 24,
+        "sinStock": 0,
+        "pickeados": 24,
+        "sustituidos": 0,
+        "productosSolicitados": 24,
+        "isWeekendRate": true,
+        "date": "2026-06-28",
+        "pickingTime": "0:42",
+        "extraBonus": 0,
+        "dayOrderIndex": 20,
+        "earnings": {
+          "effectiveSkuCount": 24,
+          "skuRate": 60,
+          "skuPayment": 1440,
+          "basePayment": 2500,
+          "grossTotal": 3940,
+          "taxAmount": 600.85,
+          "netTotal": 3339.15,
+          "appliedRange": {
+            "min": 22,
+            "max": 31,
+            "value": 60
+          },
+          "isSpecialRate": true
+        }
+      },
+      {
+        "id": "order_1782627836614_5",
+        "pedidoId": "R-0628-06",
+        "totalProducts": 24,
+        "sinStock": 0,
+        "pickeados": 24,
+        "sustituidos": 0,
+        "productosSolicitados": 24,
+        "isWeekendRate": true,
+        "date": "2026-06-28",
+        "pickingTime": "0:42",
+        "extraBonus": 0,
+        "dayOrderIndex": 19,
+        "earnings": {
+          "effectiveSkuCount": 24,
+          "skuRate": 60,
+          "skuPayment": 1440,
+          "basePayment": 2500,
+          "grossTotal": 3940,
+          "taxAmount": 600.85,
+          "netTotal": 3339.15,
+          "appliedRange": {
+            "min": 22,
+            "max": 31,
+            "value": 60
+          },
+          "isSpecialRate": true
+        }
+      },
+      {
+        "id": "order_1782627836614_4",
+        "pedidoId": "R-0628-05",
+        "totalProducts": 24,
+        "sinStock": 0,
+        "pickeados": 24,
+        "sustituidos": 0,
+        "productosSolicitados": 24,
+        "isWeekendRate": true,
+        "date": "2026-06-28",
+        "pickingTime": "0:42",
+        "extraBonus": 0,
+        "dayOrderIndex": 18,
+        "earnings": {
+          "effectiveSkuCount": 24,
+          "skuRate": 60,
+          "skuPayment": 1440,
+          "basePayment": 2500,
+          "grossTotal": 3940,
+          "taxAmount": 600.85,
+          "netTotal": 3339.15,
+          "appliedRange": {
+            "min": 22,
+            "max": 31,
+            "value": 60
+          },
+          "isSpecialRate": true
+        }
+      },
+      {
+        "id": "order_1782627836614_3",
+        "pedidoId": "R-0628-04",
+        "totalProducts": 24,
+        "sinStock": 0,
+        "pickeados": 24,
+        "sustituidos": 0,
+        "productosSolicitados": 24,
+        "isWeekendRate": true,
+        "date": "2026-06-28",
+        "pickingTime": "0:42",
+        "extraBonus": 0,
+        "dayOrderIndex": 17,
+        "earnings": {
+          "effectiveSkuCount": 24,
+          "skuRate": 60,
+          "skuPayment": 1440,
+          "basePayment": 2500,
+          "grossTotal": 3940,
+          "taxAmount": 600.85,
+          "netTotal": 3339.15,
+          "appliedRange": {
+            "min": 22,
+            "max": 31,
+            "value": 60
+          },
+          "isSpecialRate": true
+        }
+      },
+      {
+        "id": "order_1782627836614_2",
+        "pedidoId": "R-0628-03",
+        "totalProducts": 24,
+        "sinStock": 0,
+        "pickeados": 24,
+        "sustituidos": 0,
+        "productosSolicitados": 24,
+        "isWeekendRate": true,
+        "date": "2026-06-28",
+        "pickingTime": "0:42",
+        "extraBonus": 0,
+        "dayOrderIndex": 16,
+        "earnings": {
+          "effectiveSkuCount": 24,
+          "skuRate": 60,
+          "skuPayment": 1440,
+          "basePayment": 2500,
+          "grossTotal": 3940,
+          "taxAmount": 600.85,
+          "netTotal": 3339.15,
+          "appliedRange": {
+            "min": 22,
+            "max": 31,
+            "value": 60
+          },
+          "isSpecialRate": true
+        }
+      },
+      {
+        "id": "order_1782627836614_1",
+        "pedidoId": "R-0628-02",
+        "totalProducts": 24,
+        "sinStock": 0,
+        "pickeados": 24,
+        "sustituidos": 0,
+        "productosSolicitados": 24,
+        "isWeekendRate": true,
+        "date": "2026-06-28",
+        "pickingTime": "0:42",
+        "extraBonus": 0,
+        "dayOrderIndex": 15,
+        "earnings": {
+          "effectiveSkuCount": 24,
+          "skuRate": 60,
+          "skuPayment": 1440,
+          "basePayment": 2500,
+          "grossTotal": 3940,
+          "taxAmount": 600.85,
+          "netTotal": 3339.15,
+          "appliedRange": {
+            "min": 22,
+            "max": 31,
+            "value": 60
+          },
+          "isSpecialRate": true
+        }
+      },
+      {
+        "id": "order_1782627836614_0",
+        "pedidoId": "R-0628-01",
+        "totalProducts": 24,
+        "sinStock": 0,
+        "pickeados": 24,
+        "sustituidos": 0,
+        "productosSolicitados": 24,
+        "isWeekendRate": true,
+        "date": "2026-06-28",
+        "pickingTime": "0:42",
+        "extraBonus": 0,
+        "dayOrderIndex": 14,
+        "earnings": {
+          "effectiveSkuCount": 24,
+          "skuRate": 60,
+          "skuPayment": 1440,
+          "basePayment": 2500,
+          "grossTotal": 3940,
+          "taxAmount": 600.85,
+          "netTotal": 3339.15,
+          "appliedRange": {
+            "min": 22,
+            "max": 31,
+            "value": 60
+          },
+          "isSpecialRate": true
+        }
+      },
+      {
         "id": "order_1782625423686_12",
         "pedidoId": "v231019064imch-01",
         "totalProducts": 25,

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Users, LogOut, CheckCircle, Shield, AlertTriangle, ArrowLeft } from 'lucide-react';
+import { User, Users, LogOut, CheckCircle, Shield, AlertTriangle, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { formatRut, validateRut } from '../utils/rutValidator';
 
 export default function ProfileSelector({
@@ -18,9 +18,12 @@ export default function ProfileSelector({
   const [nameInput, setNameInput] = useState('');
   const [phoneInput, setPhoneInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
+  const [confirmPasswordInput, setConfirmPasswordInput] = useState('');
   const [rutError, setRutError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState('');
   const [matchedProfile, setMatchedProfile] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
   const [showSwitchDropdown, setShowSwitchDropdown] = useState(false);
 
   const handleRutChange = (e) => {
@@ -57,9 +60,11 @@ export default function ProfileSelector({
       onSelectProfile(matchedProfile.rut);
       setRutInput('');
       setPasswordInput('');
+      setConfirmPasswordInput('');
       setMatchedProfile(null);
       setStep('rut');
       setShowLogin(false);
+      setShowPassword(false);
     } else {
       setPasswordError('Contraseña incorrecta. Inténtalo de nuevo.');
     }
@@ -70,6 +75,10 @@ export default function ProfileSelector({
     if (!matchedProfile) return;
     if (!passwordInput.trim()) {
       alert('Por favor, ingresa una contraseña.');
+      return;
+    }
+    if (passwordInput !== confirmPasswordInput) {
+      setConfirmPasswordError('Las contraseñas no coinciden.');
       return;
     }
 
@@ -83,9 +92,11 @@ export default function ProfileSelector({
 
     setRutInput('');
     setPasswordInput('');
+    setConfirmPasswordInput('');
     setMatchedProfile(null);
     setStep('rut');
     setShowLogin(false);
+    setShowPassword(false);
     alert('Contraseña establecida con éxito. Úsala para tus próximos inicios de sesión.');
   };
 
@@ -97,6 +108,10 @@ export default function ProfileSelector({
     }
     if (!passwordInput.trim()) {
       alert('Por favor establece una contraseña para tu cuenta.');
+      return;
+    }
+    if (passwordInput !== confirmPasswordInput) {
+      setConfirmPasswordError('Las contraseñas no coinciden.');
       return;
     }
 
@@ -111,15 +126,20 @@ export default function ProfileSelector({
     setNameInput('');
     setPhoneInput('');
     setPasswordInput('');
+    setConfirmPasswordInput('');
     setStep('rut');
     setShowLogin(false);
+    setShowPassword(false);
   };
 
   const handleBackToRut = () => {
     setStep('rut');
     setPasswordInput('');
+    setConfirmPasswordInput('');
     setPasswordError('');
+    setConfirmPasswordError('');
     setMatchedProfile(null);
+    setShowPassword(false);
   };
 
   const handleProfileSwitch = (rut) => {
@@ -145,8 +165,9 @@ export default function ProfileSelector({
     setNameInput('');
     setPhoneInput('');
     setPasswordInput('');
+    setConfirmPasswordInput('');
     setMatchedProfile(null);
-    setShowLogin(true);
+    setShowPassword(false);
     setShowSwitchDropdown(false);
   };
 
@@ -157,13 +178,13 @@ export default function ProfileSelector({
           <div className="logo-icon-bg mx-auto mb-2" style={{ width: '50px', height: '50px' }}>
             <User size={28} />
           </div>
-          <h2 className="text-gradient">
+          <h2 className="text-gradient font-bold text-lg">
             {step === 'rut' && 'Iniciar Sesión / Registro'}
             {step === 'login' && 'Ingresar Contraseña'}
             {step === 'setup_password' && 'Proteger Cuenta'}
             {step === 'register' && 'Registro de Picker'}
           </h2>
-          <p className="card-subtitle text-xxs">
+          <p className="card-subtitle text-xxs mt-1">
             {step === 'rut' && 'Ingresa tu RUT para entrar o registrar tu perfil.'}
             {step === 'login' && 'Tu cuenta está protegida. Ingresa tu contraseña.'}
             {step === 'setup_password' && 'Establece una contraseña para tu cuenta.'}
@@ -218,16 +239,26 @@ export default function ProfileSelector({
 
             <div className="form-group">
               <label htmlFor="password">Contraseña</label>
-              <input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={passwordInput}
-                onChange={(e) => { setPasswordInput(e.target.value); setPasswordError(''); }}
-                className={`input-field ${passwordError ? 'input-danger-border' : ''}`}
-                required
-                autoFocus
-              />
+              <div className="relative flex items-center">
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={passwordInput}
+                  onChange={(e) => { setPasswordInput(e.target.value); setPasswordError(''); }}
+                  className={`input-field pr-10 ${passwordError ? 'input-danger-border' : ''}`}
+                  required
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="btn-icon absolute"
+                  style={{ right: '8px', padding: '4px', background: 'transparent', height: '24px', width: '24px' }}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
               {passwordError && (
                 <span className="text-xs text-danger flex items-center gap-1 mt-1 font-semibold">
                   <AlertTriangle size={12} />
@@ -271,16 +302,45 @@ export default function ProfileSelector({
 
             <div className="form-group">
               <label htmlFor="new_password">Nueva Contraseña</label>
+              <div className="relative flex items-center">
+                <input
+                  id="new_password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Fija tu nueva contraseña"
+                  value={passwordInput}
+                  onChange={(e) => setPasswordInput(e.target.value)}
+                  className="input-field pr-10"
+                  required
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="btn-icon absolute"
+                  style={{ right: '8px', padding: '4px', background: 'transparent', height: '24px', width: '24px' }}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="confirm_new_password">Confirmar Contraseña</label>
               <input
-                id="new_password"
+                id="confirm_new_password"
                 type="password"
-                placeholder="Fija tu nueva contraseña"
-                value={passwordInput}
-                onChange={(e) => setPasswordInput(e.target.value)}
-                className="input-field"
+                placeholder="Repite la contraseña para corroborar"
+                value={confirmPasswordInput}
+                onChange={(e) => { setConfirmPasswordInput(e.target.value); setConfirmPasswordError(''); }}
+                className={`input-field ${confirmPasswordError ? 'input-danger-border' : ''}`}
                 required
-                autoFocus
               />
+              {confirmPasswordError && (
+                <span className="text-xs text-danger flex items-center gap-1 mt-1 font-semibold">
+                  <AlertTriangle size={12} />
+                  {confirmPasswordError}
+                </span>
+              )}
             </div>
 
             <button type="submit" className="btn btn-primary w-full mt-2">
@@ -343,15 +403,44 @@ export default function ProfileSelector({
 
             <div className="form-group">
               <label htmlFor="register_password">Crear Contraseña</label>
+              <div className="relative flex items-center">
+                <input
+                  id="register_password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Establece una contraseña de seguridad"
+                  value={passwordInput}
+                  onChange={(e) => setPasswordInput(e.target.value)}
+                  className="input-field pr-10"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="btn-icon absolute"
+                  style={{ right: '8px', padding: '4px', background: 'transparent', height: '24px', width: '24px' }}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="confirm_register_password">Confirmar Contraseña</label>
               <input
-                id="register_password"
+                id="confirm_register_password"
                 type="password"
-                placeholder="Establece una contraseña de seguridad"
-                value={passwordInput}
-                onChange={(e) => setPasswordInput(e.target.value)}
-                className="input-field"
+                placeholder="Repite la contraseña para corroborar"
+                value={confirmPasswordInput}
+                onChange={(e) => { setConfirmPasswordInput(e.target.value); setConfirmPasswordError(''); }}
+                className={`input-field ${confirmPasswordError ? 'input-danger-border' : ''}`}
                 required
               />
+              {confirmPasswordError && (
+                <span className="text-xs text-danger flex items-center gap-1 mt-1 font-semibold">
+                  <AlertTriangle size={12} />
+                  {confirmPasswordError}
+                </span>
+              )}
             </div>
 
             <button type="submit" className="btn btn-primary w-full mt-2">

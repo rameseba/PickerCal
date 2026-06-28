@@ -402,6 +402,7 @@ input[type=number] {
 .pl-6 { padding-left: 24px !important; }
 .pl-8 { padding-left: 32px !important; }
 .pl-9 { padding-left: 36px !important; }
+.pr-10 { padding-right: 40px !important; }
 
 /* --- Buttons (COMPACT) --- */
 .btn {

@@ -276,7 +276,7 @@ export default function AdminPanel({ profiles, historyDatabase, settingsDatabase
                   onClick={() => setSelectedRut(p.rut)}
                   className={`admin-user-item ${p.rut === activeRut ? 'active' : ''}`}
                 >
-                  <span className="font-bold text-xs block text-left">{p.name}</span>
+                  <span className="font-bold text-xs block text-left text-gray-800">{p.name}</span>
                   <span className="text-xxs text-muted block text-left">{p.rut}</span>
                 </button>
               ))
